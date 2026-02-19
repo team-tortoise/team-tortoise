@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ECI exact MAX 5.6.x Shop Order Intake</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f8fb;
+      --panel: #ffffff;
+      --accent: #1f6feb;
+      --border: #d0d7de;
+      --text: #1f2328;
+      --muted: #57606a;
+      --danger: #cf222e;
+      --ok: #1a7f37;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.35;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 2rem auto;
+      padding: 0 1rem 2rem;
+    }
+
+    h1 {
+      margin: 0 0 0.5rem;
+      font-size: 1.8rem;
+    }
+
+    .intro {
+      margin: 0 0 1.5rem;
+      color: var(--muted);
+    }
+
+    fieldset {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--panel);
+      margin: 0 0 1rem;
+      padding: 1rem;
+    }
+
+    legend {
+      padding: 0 0.4rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.8rem 1rem;
+    }
+
+    label {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+
+    input, select, textarea, button {
+      font: inherit;
+    }
+
+    input, select, textarea {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.55rem 0.65rem;
+      color: var(--text);
+      background: #fff;
+    }
+
+    textarea { min-height: 84px; resize: vertical; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.5rem;
+      overflow: hidden;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #fff;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--border);
+      padding: 0.4rem;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f6f8fa;
+      font-size: 0.86rem;
+      color: var(--muted);
+    }
+
+    td input { width: 100%; box-sizing: border-box; }
+
+    .actions {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+    }
+
+    button {
+      border: 1px solid transparent;
+      border-radius: 8px;
+      padding: 0.55rem 0.9rem;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-light {
+      background: #fff;
+      border-color: var(--border);
+      color: var(--text);
+    }
+
+    .btn-danger {
+      background: #fff;
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+
+    .right { text-align: right; }
+
+    .totals {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0.6rem;
+      margin-top: 1rem;
+    }
+
+    .totals div {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+      padding: 0.6rem 0.8rem;
+    }
+
+    .totals b {
+      display: block;
+      font-size: 1.1rem;
+      margin-top: 0.15rem;
+      color: var(--ok);
+    }
+
+    .output-wrap {
+      margin-top: 1rem;
+    }
+
+    #output {
+      width: 100%;
+      min-height: 140px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+      padding: 0.75rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      white-space: pre;
+      overflow: auto;
+    }
+
+    .note {
+      margin-top: 0.65rem;
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Shop Order Intake Form (ECI exact MAX 5.6.x)</h1>
+    <p class="intro">Capture order data in a structured layout and export line-level CSV rows that can be mapped into your ECI exact MAX import process.</p>
+
+    <form id="orderForm">
+      <fieldset>
+        <legend>Order Header</legend>
+        <div class="grid">
+          <label>Order Number
+            <input name="orderNumber" required placeholder="SO-100245" />
+          </label>
+          <label>Customer Code
+            <input name="customerCode" required placeholder="CUST-001" />
+          </label>
+          <label>Customer Name
+            <input name="customerName" required placeholder="Acme Industries" />
+          </label>
+          <label>Order Date
+            <input type="date" name="orderDate" required />
+          </label>
+          <label>Requested Ship Date
+            <input type="date" name="shipDate" />
+          </label>
+          <label>Terms
+            <select name="terms">
+              <option value="NET30">NET30</option>
+              <option value="NET15">NET15</option>
+              <option value="COD">COD</option>
+              <option value="PREPAID">PREPAID</option>
+            </select>
+          </label>
+          <label>Sales Rep
+            <input name="salesRep" placeholder="REP01" />
+          </label>
+          <label>PO Number
+            <input name="poNumber" placeholder="PO-5561" />
+          </label>
+          <label>Ship Via
+            <input name="shipVia" placeholder="UPS Ground" />
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Billing / Shipping</legend>
+        <div class="grid">
+          <label>Bill To Address
+            <textarea name="billTo" placeholder="Company\nAddress\nCity, ST ZIP"></textarea>
+          </label>
+          <label>Ship To Address
+            <textarea name="shipTo" placeholder="Company\nAddress\nCity, ST ZIP"></textarea>
+          </label>
+          <label>Order Notes
+            <textarea name="notes" placeholder="Internal notes / instructions"></textarea>
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Line Items</legend>
+        <table id="lineTable">
+          <thead>
+            <tr>
+              <th style="width: 13%;">Part Number</th>
+              <th>Description</th>
+              <th style="width: 8%;">Qty</th>
+              <th style="width: 10%;">UOM</th>
+              <th style="width: 10%;">Unit Price</th>
+              <th style="width: 10%;">Tax %</th>
+              <th style="width: 10%;">Line Total</th>
+              <th style="width: 6%;"></th>
+            </tr>
+          </thead>
+          <tbody id="lineBody"></tbody>
+        </table>
+
+        <div class="actions">
+          <button type="button" class="btn-light" id="addLine">+ Add Line</button>
+        </div>
+
+        <div class="totals">
+          <div>Subtotal<b id="subtotal">0.00</b></div>
+          <div>Total Tax<b id="taxTotal">0.00</b></div>
+          <div>Grand Total<b id="grandTotal">0.00</b></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Export</legend>
+        <div class="actions">
+          <button type="button" class="btn-primary" id="exportCsv">Generate exact MAX CSV Rows</button>
+          <button type="button" class="btn-light" id="exportJson">Preview JSON Payload</button>
+          <button type="reset" class="btn-danger">Reset Form</button>
+        </div>
+        <div class="output-wrap">
+          <div id="output" aria-live="polite"></div>
+          <p class="note">CSV columns: OrderNumber,CustomerCode,CustomerName,OrderDate,ShipDate,Terms,SalesRep,PONumber,ShipVia,PartNumber,Description,Qty,UOM,UnitPrice,TaxPercent,LineTotal,BillTo,ShipTo,Notes</p>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+
+  <script>
+    const lineBody = document.getElementById('lineBody');
+    const addLineBtn = document.getElementById('addLine');
+    const output = document.getElementById('output');
+
+    function money(value) {
+      return Number(value || 0).toFixed(2);
+    }
+
+    function addLine(defaults = {}) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><input name="partNumber" required value="${defaults.partNumber || ''}" /></td>
+        <td><input name="description" required value="${defaults.description || ''}" /></td>
+        <td><input name="qty" type="number" min="0" step="1" value="${defaults.qty || 1}" /></td>
+        <td><input name="uom" value="${defaults.uom || 'EA'}" /></td>
+        <td><input name="unitPrice" type="number" min="0" step="0.01" value="${defaults.unitPrice || 0}" /></td>
+        <td><input name="taxPct" type="number" min="0" step="0.01" value="${defaults.taxPct || 0}" /></td>
+        <td class="right" data-line-total>0.00</td>
+        <td><button type="button" class="btn-danger" data-remove-line>✕</button></td>
+      `;
+      lineBody.appendChild(tr);
+      recalc();
+    }
+
+    function recalc() {
+      let subtotal = 0;
+      let totalTax = 0;
+      [...lineBody.querySelectorAll('tr')].forEach((row) => {
+        const qty = Number(row.querySelector('[name="qty"]').value || 0);
+        const unit = Number(row.querySelector('[name="unitPrice"]').value || 0);
+        const taxPct = Number(row.querySelector('[name="taxPct"]').value || 0);
+        const line = qty * unit;
+        const tax = line * (taxPct / 100);
+        subtotal += line;
+        totalTax += tax;
+        row.querySelector('[data-line-total]').textContent = money(line + tax);
+      });
+      document.getElementById('subtotal').textContent = money(subtotal);
+      document.getElementById('taxTotal').textContent = money(totalTax);
+      document.getElementById('grandTotal').textContent = money(subtotal + totalTax);
+    }
+
+    function text(v) {
+      return String(v ?? '').replace(/\n/g, ' ').trim();
+    }
+
+    function getHeader(form) {
+      return {
+        orderNumber: form.orderNumber.value,
+        customerCode: form.customerCode.value,
+        customerName: form.customerName.value,
+        orderDate: form.orderDate.value,
+        shipDate: form.shipDate.value,
+        terms: form.terms.value,
+        salesRep: form.salesRep.value,
+        poNumber: form.poNumber.value,
+        shipVia: form.shipVia.value,
+        billTo: form.billTo.value,
+        shipTo: form.shipTo.value,
+        notes: form.notes.value,
+      };
+    }
+
+    function getLines() {
+      return [...lineBody.querySelectorAll('tr')].map((row) => {
+        const qty = Number(row.querySelector('[name="qty"]').value || 0);
+        const unitPrice = Number(row.querySelector('[name="unitPrice"]').value || 0);
+        const taxPct = Number(row.querySelector('[name="taxPct"]').value || 0);
+        const lineTotal = qty * unitPrice * (1 + taxPct / 100);
+        return {
+          partNumber: row.querySelector('[name="partNumber"]').value,
+          description: row.querySelector('[name="description"]').value,
+          qty,
+          uom: row.querySelector('[name="uom"]').value,
+          unitPrice,
+          taxPct,
+          lineTotal,
+        };
+      });
+    }
+
+    function csvEscape(value) {
+      const t = text(value);
+      return /[",]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t;
+    }
+
+    addLineBtn.addEventListener('click', () => addLine());
+
+    lineBody.addEventListener('input', (event) => {
+      if (event.target.matches('input')) recalc();
+    });
+
+    lineBody.addEventListener('click', (event) => {
+      if (event.target.matches('[data-remove-line]')) {
+        event.target.closest('tr').remove();
+        if (!lineBody.querySelector('tr')) addLine();
+        recalc();
+      }
+    });
+
+    document.getElementById('exportJson').addEventListener('click', () => {
+      const form = document.forms.orderForm;
+      const payload = {
+        erpSystem: 'ECI exact MAX',
+        erpVersion: '5.6.x',
+        header: getHeader(form),
+        lines: getLines(),
+      };
+      output.textContent = JSON.stringify(payload, null, 2);
+    });
+
+    document.getElementById('exportCsv').addEventListener('click', () => {
+      const form = document.forms.orderForm;
+      if (!form.reportValidity()) return;
+      const header = getHeader(form);
+      const rows = getLines();
+      if (!rows.length) {
+        output.textContent = 'No lines to export.';
+        return;
+      }
+
+      const cols = [
+        'OrderNumber','CustomerCode','CustomerName','OrderDate','ShipDate','Terms','SalesRep','PONumber','ShipVia',
+        'PartNumber','Description','Qty','UOM','UnitPrice','TaxPercent','LineTotal','BillTo','ShipTo','Notes'
+      ];
+
+      const data = rows.map((line) => [
+        header.orderNumber, header.customerCode, header.customerName, header.orderDate, header.shipDate,
+        header.terms, header.salesRep, header.poNumber, header.shipVia,
+        line.partNumber, line.description, line.qty, line.uom, money(line.unitPrice), money(line.taxPct), money(line.lineTotal),
+        header.billTo, header.shipTo, header.notes
+      ].map(csvEscape).join(','));
+
+      output.textContent = [cols.join(','), ...data].join('\n');
+    });
+
+    document.getElementById('orderForm').addEventListener('reset', () => {
+      setTimeout(() => {
+        lineBody.innerHTML = '';
+        addLine();
+        output.textContent = '';
+      }, 0);
+    });
+
+    addLine({ partNumber: 'PART-100', description: 'Sample line item', qty: 1, uom: 'EA', unitPrice: 0, taxPct: 0 });
+  </script>
+</body>
+</html>
